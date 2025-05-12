@@ -16,13 +16,13 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		
-		http
-			.csrf(customizer -> customizer.disable())
-			.authorizeHttpRequests(request -> request.anyRequest().authenticated())
-			// .formLogin(Customizer.withDefaults())
-			.httpBasic(Customizer.withDefaults())
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); 
-		return http.build();
+		return http
+					.csrf(customizer -> customizer.disable())
+					.authorizeHttpRequests(request -> request.anyRequest().authenticated())
+					// .formLogin(Customizer.withDefaults())
+					.httpBasic(Customizer.withDefaults())
+					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.build();
 		
 		/*
 		http.csrf(customizer -> customizer.disable());
