@@ -3,9 +3,11 @@ package net.projectsync.security.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,11 +15,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired
+    private JwtFilter jwtFilter;
+    
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -26,10 +32,11 @@ public class SecurityConfig {
 
         return http.csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        //.requestMatchers("/register", "/register/**", "/hello", "/welcome", "/login/**", "/api/noAuth/**").permitAll()  // how to exlude few endpoints ?
+                		.requestMatchers("login", "register").permitAll()
                 		.anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
@@ -61,4 +68,18 @@ public class SecurityConfig {
         provider.setUserDetailsService(userDetailsService);
         return provider;
     }
+    
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 }
+
+/*
+ * Telusko: Spring Security 6 with Spring Boot and JWT Tutorial
+ * Youtube: https://www.youtube.com/watch?v=oeni_9g7too
+ * GitHub: https://github.com/navinreddy20/spring6yt
+ * 1. register
+ * 2. login
+ * 3. take token and use this to access other endpoints (use Bearer Token in Postman 
+ */
